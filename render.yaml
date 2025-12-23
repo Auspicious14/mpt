@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: moneyprintertrubo-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter # Upgrade to 'standard' for better performance
+
+    envVars:
+      # API Keys (set these manually in dashboard for security)
+      - key: PIXABAY_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+      # Provider settings
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: VIDEO_SOURCE
+        value: pixabay
+      - key: SUBTITLE_PROVIDER
+        value: edge
+
+      # Server config
+      - key: PORT
+        value: 8080
+      - key: PYTHONPATH
+        value: /MoneyPrinterTurbo
+      - key: MAX_CONCURRENT_TASKS
+        value: 2
+
+      # Endpoint (update after deployment)
+      - key: ENDPOINT
+        sync: false
+
+    # Persistent storage for videos
+    disk:
+      name: video-storage
+      mountPath: /MoneyPrinterTurbo/storage
+      sizeGB: 10
+
+    # Health check endpoint
+    healthCheckPath: /health

@@ -29,7 +29,91 @@ def load_config():
         with open(config_file, mode="r", encoding="utf-8-sig") as fp:
             _cfg_content = fp.read()
             _config_ = toml.loads(_cfg_content)
+    
+    # ===== OVERRIDE WITH ENVIRONMENT VARIABLES (for production) =====
+    _config_ = override_with_env_vars(_config_)
+    
     return _config_
+
+
+def override_with_env_vars(config):
+    """Override config values with environment variables if they exist"""
+    
+    # Ensure 'app' section exists
+    if 'app' not in config:
+        config['app'] = {}
+    
+    # Pixabay API Keys
+    if os.getenv('PIXABAY_API_KEY'):
+        keys = os.getenv('PIXABAY_API_KEY').split(',')
+        config['app']['pixabay_api_keys'] = [k.strip() for k in keys]
+        logger.info(f"Loaded {len(config['app']['pixabay_api_keys'])} Pixabay API key(s) from environment")
+    
+    # Pexels API Keys
+    if os.getenv('PEXELS_API_KEY'):
+        keys = os.getenv('PEXELS_API_KEY').split(',')
+        config['app']['pexels_api_keys'] = [k.strip() for k in keys]
+        logger.info(f"Loaded {len(config['app']['pexels_api_keys'])} Pexels API key(s) from environment")
+    
+    # LLM Provider
+    if os.getenv('LLM_PROVIDER'):
+        config['app']['llm_provider'] = os.getenv('LLM_PROVIDER')
+        logger.info(f"LLM Provider set to: {config['app']['llm_provider']}")
+    
+    # Video Source
+    if os.getenv('VIDEO_SOURCE'):
+        config['app']['video_source'] = os.getenv('VIDEO_SOURCE')
+        logger.info(f"Video Source set to: {config['app']['video_source']}")
+    
+    # Gemini API Key
+    if os.getenv('GEMINI_API_KEY'):
+        config['app']['gemini_api_key'] = os.getenv('GEMINI_API_KEY')
+        logger.info("Gemini API key loaded from environment")
+    
+    # OpenAI API Key
+    if os.getenv('OPENAI_API_KEY'):
+        config['app']['openai_api_key'] = os.getenv('OPENAI_API_KEY')
+        logger.info("OpenAI API key loaded from environment")
+    
+    # Moonshot API Key
+    if os.getenv('MOONSHOT_API_KEY'):
+        config['app']['moonshot_api_key'] = os.getenv('MOONSHOT_API_KEY')
+        logger.info("Moonshot API key loaded from environment")
+    
+    # DeepSeek API Key
+    if os.getenv('DEEPSEEK_API_KEY'):
+        config['app']['deepseek_api_key'] = os.getenv('DEEPSEEK_API_KEY')
+        logger.info("DeepSeek API key loaded from environment")
+    
+    # Qwen API Key
+    if os.getenv('QWEN_API_KEY'):
+        config['app']['qwen_api_key'] = os.getenv('QWEN_API_KEY')
+        logger.info("Qwen API key loaded from environment")
+    
+    # Subtitle Provider
+    if os.getenv('SUBTITLE_PROVIDER'):
+        config['app']['subtitle_provider'] = os.getenv('SUBTITLE_PROVIDER')
+        logger.info(f"Subtitle Provider set to: {config['app']['subtitle_provider']}")
+    
+    # Endpoint URL
+    if os.getenv('ENDPOINT'):
+        config['app']['endpoint'] = os.getenv('ENDPOINT')
+        logger.info(f"Endpoint URL set to: {config['app']['endpoint']}")
+    
+    # Material Directory
+    if os.getenv('MATERIAL_DIRECTORY'):
+        config['app']['material_directory'] = os.getenv('MATERIAL_DIRECTORY')
+        logger.info(f"Material Directory set to: {config['app']['material_directory']}")
+    
+    # Max Concurrent Tasks
+    if os.getenv('MAX_CONCURRENT_TASKS'):
+        try:
+            config['app']['max_concurrent_tasks'] = int(os.getenv('MAX_CONCURRENT_TASKS'))
+            logger.info(f"Max Concurrent Tasks set to: {config['app']['max_concurrent_tasks']}")
+        except ValueError:
+            logger.warning("Invalid MAX_CONCURRENT_TASKS value, using default")
+    
+    return config
 
 
 def save_config():
